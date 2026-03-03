@@ -32,6 +32,17 @@ export default function Footer() {
       style={{ background: "oklch(0.07 0.01 280)" }}
       aria-label="Site footer"
     >
+      {/* Gradient top border */}
+      <div
+        className="w-full h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, oklch(0.58 0.26 340), oklch(0.72 0.22 320), oklch(0.58 0.26 340), transparent)",
+          boxShadow: "0 0 12px oklch(0.58 0.26 340 / 0.4)",
+        }}
+        aria-hidden="true"
+      />
+
       {/* Main footer content */}
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
@@ -91,6 +102,7 @@ export default function Footer() {
                         (e.currentTarget as HTMLButtonElement).style.color =
                           "oklch(0.55 0.02 280)";
                       }}
+                      data-ocid="footer.link"
                     >
                       {item.label}
                     </button>
@@ -109,6 +121,7 @@ export default function Footer() {
                       (e.currentTarget as HTMLAnchorElement).style.color =
                         "oklch(0.55 0.02 280)";
                     }}
+                    data-ocid="footer.link"
                   >
                     Privacy Policy
                   </Link>
@@ -126,6 +139,7 @@ export default function Footer() {
                       (e.currentTarget as HTMLAnchorElement).style.color =
                         "oklch(0.55 0.02 280)";
                     }}
+                    data-ocid="footer.link"
                   >
                     Terms of Use
                   </Link>
@@ -149,24 +163,29 @@ export default function Footer() {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                  className="w-10 h-10 flex items-center justify-center transition-all duration-300 hover:scale-110 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary group/social"
                   style={{
                     border: "1px solid oklch(0.22 0.02 280)",
                     color: "oklch(0.45 0.02 280)",
+                    position: "relative",
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.color =
-                      "oklch(0.72 0.22 320)";
-                    (e.currentTarget as HTMLAnchorElement).style.borderColor =
-                      "oklch(0.58 0.26 340 / 0.4)";
+                    const el = e.currentTarget as HTMLAnchorElement;
+                    el.style.color = "oklch(0.97 0.01 60)";
+                    el.style.borderColor = "oklch(0.58 0.26 340)";
+                    el.style.background = "oklch(0.58 0.26 340 / 0.15)";
+                    el.style.boxShadow =
+                      "0 0 16px oklch(0.58 0.26 340 / 0.5), 0 0 32px oklch(0.58 0.26 340 / 0.2)";
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.color =
-                      "oklch(0.45 0.02 280)";
-                    (e.currentTarget as HTMLAnchorElement).style.borderColor =
-                      "oklch(0.22 0.02 280)";
+                    const el = e.currentTarget as HTMLAnchorElement;
+                    el.style.color = "oklch(0.45 0.02 280)";
+                    el.style.borderColor = "oklch(0.22 0.02 280)";
+                    el.style.background = "transparent";
+                    el.style.boxShadow = "none";
                   }}
                   aria-label={social.label}
+                  data-ocid="footer.link"
                 >
                   <social.icon className="w-4 h-4" aria-hidden="true" />
                 </a>

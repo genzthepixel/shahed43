@@ -1,6 +1,19 @@
+import { useEffect, useRef, useState } from "react";
 import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 
-const asmSnippet = `<span class="asm-cm">; IDA Pro disassembly snippet</span>
+// Plain-text version for typing animation (no HTML)
+const asmPlainLines = [
+  "; IDA Pro disassembly snippet",
+  "push    ebp",
+  "mov     ebp, esp",
+  "sub     esp, 18h",
+  "mov     [ebp+WindField], edi",
+  "fld     dword ptr [edi+velocity_x]",
+  "fmul    dword ptr [edi+velocity_x]",
+];
+
+// HTML version (rendered after typing completes)
+const asmSnippetFull = `<span class="asm-cm">; IDA Pro disassembly snippet</span>
 <span class="asm-kw">push</span>    <span class="asm-reg">ebp</span>
 <span class="asm-kw">mov</span>     <span class="asm-reg">ebp</span>, <span class="asm-reg">esp</span>
 <span class="asm-kw">sub</span>     <span class="asm-reg">esp</span>, <span class="asm-nu">18h</span>
@@ -52,6 +65,73 @@ const skills = [
   },
 ];
 
+function TypewriterCode({ started }: { started: boolean }) {
+  const [typedLines, setTypedLines] = useState<string[]>([]);
+  const [currentLine, setCurrentLine] = useState(0);
+  const [_currentChar, setCurrentChar] = useState(0);
+  const [done, setDone] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!started || done) return;
+
+    intervalRef.current = setInterval(() => {
+      setCurrentChar((cc) => {
+        const line = asmPlainLines[currentLine];
+        if (cc < line.length) {
+          setTypedLines((prev) => {
+            const updated = [...prev];
+            updated[currentLine] = line.slice(0, cc + 1);
+            return updated;
+          });
+          return cc + 1;
+        }
+        // Move to next line
+        const nextLine = currentLine + 1;
+        if (nextLine < asmPlainLines.length) {
+          setCurrentLine(nextLine);
+          return 0;
+        }
+        // All done
+        setDone(true);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        return cc;
+      });
+    }, 28);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [started, done, currentLine]);
+
+  if (done) {
+    return (
+      <pre
+        className="code-block text-sm overflow-x-auto"
+        aria-label="IDA Pro assembly disassembly"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: syntax-highlighted code
+        dangerouslySetInnerHTML={{ __html: asmSnippetFull }}
+      />
+    );
+  }
+
+  return (
+    <pre
+      className="code-block text-sm overflow-x-auto typing-cursor"
+      aria-label="IDA Pro assembly disassembly — typing"
+      style={{ minHeight: "10rem" }}
+    >
+      {typedLines.map((line, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: stable index in static list
+        <span key={i}>
+          {line}
+          {"\n"}
+        </span>
+      ))}
+    </pre>
+  );
+}
+
 export default function ToolkitSection() {
   const { ref: sectionRef, isVisible } = useIntersectionObserver();
 
@@ -62,6 +142,19 @@ export default function ToolkitSection() {
       className="relative py-32 bg-near-white overflow-hidden"
       aria-labelledby="toolkit-heading"
     >
+      {/* Section number */}
+      <div
+        className="absolute top-8 right-6 z-10 pointer-events-none"
+        aria-hidden="true"
+      >
+        <span
+          className="font-syne text-xs tracking-[0.4em] uppercase"
+          style={{ color: "oklch(0.58 0.26 340 / 0.4)" }}
+        >
+          05
+        </span>
+      </div>
+
       {/* Section background animation */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div
@@ -235,7 +328,7 @@ export default function ToolkitSection() {
             ))}
           </div>
 
-          {/* IDA Pro code showcase */}
+          {/* IDA Pro code showcase with typewriter */}
           <div
             className={`transition-all duration-700 delay-500 ${
               isVisible
@@ -284,12 +377,8 @@ export default function ToolkitSection() {
                 wind_physics.exe — disassembly view
               </p>
 
-              <pre
-                className="code-block text-sm overflow-x-auto"
-                aria-label="IDA Pro assembly disassembly"
-                // biome-ignore lint/security/noDangerouslySetInnerHtml: syntax-highlighted code
-                dangerouslySetInnerHTML={{ __html: asmSnippet }}
-              />
+              {/* Typewriter code block */}
+              <TypewriterCode started={isVisible} />
 
               <div
                 className="mt-6 p-4"

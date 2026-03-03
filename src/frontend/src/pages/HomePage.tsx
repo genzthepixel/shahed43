@@ -1,3 +1,5 @@
+import BackToTop from "../components/BackToTop";
+import MarqueeTicker from "../components/MarqueeTicker";
 import AboutSection from "../components/sections/AboutSection";
 import AwardsSection from "../components/sections/AwardsSection";
 import CommunitySection from "../components/sections/CommunitySection";
@@ -15,6 +17,7 @@ export default function HomePage() {
       <Header />
       <main>
         <HeroSection />
+        <MarqueeTicker />
         <AboutSection />
         <ProjectsSection />
         <CommunitySection />
@@ -24,6 +27,7 @@ export default function HomePage() {
         <ContactSection />
       </main>
       <Footer />
+      <BackToTop />
     </div>
   );
 }

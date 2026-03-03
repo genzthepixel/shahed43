@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useScrollParallax } from "../../hooks/useScrollParallax";
 
 function scrollTo(id: string) {
   const el = document.getElementById(id);
@@ -27,10 +28,67 @@ function generateParticles(count: number): Particle[] {
   }));
 }
 
+interface MagneticButtonProps {
+  onClick: () => void;
+  className?: string;
+  style?: React.CSSProperties;
+  children: React.ReactNode;
+  "data-ocid"?: string;
+}
+
+function MagneticButton({
+  onClick,
+  className,
+  style,
+  children,
+  "data-ocid": ocid,
+}: MagneticButtonProps) {
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const btn = btnRef.current;
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) * 0.22;
+    const dy = (e.clientY - cy) * 0.22;
+    btn.style.transform = `translate(${dx}px, ${dy}px) scale(1.02)`;
+  };
+
+  const handleMouseLeave = () => {
+    const btn = btnRef.current;
+    if (!btn) return;
+    btn.style.transform = "translate(0, 0) scale(1)";
+  };
+
+  return (
+    <button
+      ref={btnRef}
+      type="button"
+      onClick={onClick}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={className}
+      style={{
+        ...style,
+        transition:
+          "transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s ease",
+      }}
+      data-ocid={ocid}
+    >
+      {children}
+    </button>
+  );
+}
+
 export default function HeroSection() {
   const [particles] = useState(() => generateParticles(20));
   const [visible, setVisible] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
+
+  // Parallax refs for orbs
+  const orb1Ref = useScrollParallax(0.08);
+  const orb2Ref = useScrollParallax(-0.05);
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 100);
@@ -40,10 +98,22 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      ref={sectionRef}
       className="relative min-h-screen mesh-gradient-hero flex items-center overflow-hidden pt-20"
       aria-label="Hero section"
     >
+      {/* Section number */}
+      <div
+        className="absolute top-28 right-6 z-10 pointer-events-none"
+        aria-hidden="true"
+      >
+        <span
+          className="font-syne text-xs tracking-[0.4em] uppercase"
+          style={{ color: "oklch(0.58 0.26 340 / 0.5)" }}
+        >
+          01
+        </span>
+      </div>
+
       {/* Ambient floating particles */}
       <div
         className="absolute inset-0 pointer-events-none overflow-hidden"
@@ -63,15 +133,25 @@ export default function HeroSection() {
             }}
           />
         ))}
-        {/* Animated drifting orbs — section animation */}
+        {/* Animated drifting orbs — parallax wrapper separates translate from CSS animation */}
         <div
-          className="animate-orb-1 absolute top-1/4 right-1/3 w-[500px] h-[500px] rounded-full blur-3xl"
-          style={{ background: "oklch(0.58 0.26 340 / 0.10)" }}
-        />
+          ref={orb1Ref as React.RefObject<HTMLDivElement>}
+          className="absolute top-1/4 right-1/3 w-[500px] h-[500px]"
+        >
+          <div
+            className="animate-orb-1 w-full h-full rounded-full blur-3xl"
+            style={{ background: "oklch(0.58 0.26 340 / 0.10)" }}
+          />
+        </div>
         <div
-          className="animate-orb-2 absolute bottom-1/3 left-1/4 w-80 h-80 rounded-full blur-3xl"
-          style={{ background: "oklch(0.42 0.16 345 / 0.14)" }}
-        />
+          ref={orb2Ref as React.RefObject<HTMLDivElement>}
+          className="absolute bottom-1/3 left-1/4 w-80 h-80"
+        >
+          <div
+            className="animate-orb-2 w-full h-full rounded-full blur-3xl"
+            style={{ background: "oklch(0.42 0.16 345 / 0.14)" }}
+          />
+        </div>
         <div
           className="animate-orb-3 absolute top-2/3 right-1/5 w-64 h-64 rounded-full blur-3xl"
           style={{ background: "oklch(0.72 0.22 320 / 0.08)" }}
@@ -99,29 +179,45 @@ export default function HeroSection() {
           </p>
 
           <h1 className="font-playfair leading-none mb-8">
-            <span
-              className="block text-7xl md:text-8xl xl:text-9xl font-black"
-              style={{ color: "oklch(0.97 0.01 60)" }}
-            >
-              Shahed
+            <span className="block text-7xl md:text-8xl xl:text-9xl font-black overflow-hidden">
+              <span
+                className="word-reveal block"
+                style={{
+                  color: "oklch(0.97 0.01 60)",
+                  animationDelay: "0ms",
+                  animationFillMode: "forwards",
+                }}
+              >
+                Shahed
+              </span>
             </span>
-            <span
-              className="block text-5xl md:text-6xl xl:text-7xl font-normal italic"
-              style={{ color: "oklch(0.72 0.22 320)" }}
-            >
-              Programming
+            <span className="block text-5xl md:text-6xl xl:text-7xl font-normal italic overflow-hidden">
+              <span
+                className="word-reveal block"
+                style={{
+                  color: "oklch(0.72 0.22 320)",
+                  animationDelay: "120ms",
+                  animationFillMode: "forwards",
+                }}
+              >
+                Programming
+              </span>
             </span>
-            <span
-              className="block text-6xl md:text-7xl xl:text-8xl font-bold"
-              style={{
-                background:
-                  "linear-gradient(135deg, oklch(0.72 0.22 320), oklch(0.65 0.18 60))",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              is Art.
+            <span className="block text-6xl md:text-7xl xl:text-8xl font-bold overflow-hidden">
+              <span
+                className="word-reveal block"
+                style={{
+                  background:
+                    "linear-gradient(135deg, oklch(0.72 0.22 320), oklch(0.65 0.18 60))",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  animationDelay: "240ms",
+                  animationFillMode: "forwards",
+                }}
+              >
+                is Art.
+              </span>
             </span>
           </h1>
 
@@ -131,20 +227,20 @@ export default function HeroSection() {
           </p>
 
           <div className="flex flex-wrap gap-4">
-            <button
-              type="button"
+            <MagneticButton
               onClick={() => scrollTo("work")}
-              className="shimmer-btn font-syne font-semibold tracking-widest uppercase text-sm px-8 py-4 text-white rounded-none transition-all duration-300 hover:scale-[1.02] hover:shadow-pink-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-darker-bg"
+              className="shimmer-btn font-syne font-semibold tracking-widest uppercase text-sm px-8 py-4 text-white rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-darker-bg"
+              data-ocid="hero.primary_button"
             >
               View Work
-            </button>
-            <button
-              type="button"
+            </MagneticButton>
+            <MagneticButton
               onClick={() => scrollTo("contact")}
-              className="font-syne font-semibold tracking-widest uppercase text-sm px-8 py-4 rounded-none border border-near-white/30 text-near-white/80 hover:border-primary hover:text-primary transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-darker-bg"
+              className="font-syne font-semibold tracking-widest uppercase text-sm px-8 py-4 rounded-none border border-near-white/30 text-near-white/80 hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-darker-bg"
+              data-ocid="hero.secondary_button"
             >
               Get in Touch
-            </button>
+            </MagneticButton>
           </div>
         </div>
 
@@ -186,7 +282,7 @@ export default function HeroSection() {
               style={{ background: "oklch(0.13 0.01 280)" }}
             >
               <img
-                src="/assets/uploads/Untitled-1.png"
+                src="/assets/uploads/Untitled-2-1.png"
                 alt="Shahed — Junior Programmer & Fashionista"
                 className="w-full h-full object-cover object-top"
               />

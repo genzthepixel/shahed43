@@ -1,6 +1,47 @@
 import { Code2, Download, Shirt, Sparkles } from "lucide-react";
-import { useRef } from "react";
 import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
+
+interface ParagraphItem {
+  key: string;
+  node: React.ReactNode;
+}
+
+const paragraphItems: ParagraphItem[] = [
+  {
+    key: "p1",
+    node: "It started in Class 9 — a curious student picking up C, drawn not by assignments but by a hunger to solve problems that felt impossible. What began as simple programs evolved into something far more ambitious.",
+  },
+  {
+    key: "p2",
+    node: (
+      <>
+        The obsession?{" "}
+        <strong style={{ color: "oklch(1 0 0)" }}>Physics simulation</strong>.
+        Not the approximated, close-enough physics that most games settle for —
+        but 100% accurate, mathematically precise physical reality rendered in
+        real time. Wind that behaves like actual wind. Gravity that mirrors the
+        universe's laws exactly.
+      </>
+    ),
+  },
+  {
+    key: "p3",
+    node: "But Shahed isn't just a programmer. The same eye that spots elegance in a well-optimized algorithm finds it in a perfectly cut garment. Code and fashion are not opposites — both are systems of precision and beauty.",
+  },
+  {
+    key: "p4",
+    node: (
+      <>
+        The belief:{" "}
+        <strong style={{ color: "oklch(1 0 0)" }}>
+          humans are capable of going beyond imagination
+        </strong>
+        , when given the right tools, the right mindset, and the courage to
+        build what doesn't yet exist.
+      </>
+    ),
+  },
+];
 
 export default function AboutSection() {
   const { ref: sectionRef, isVisible } = useIntersectionObserver();
@@ -13,6 +54,19 @@ export default function AboutSection() {
       style={{ background: "oklch(0.13 0.01 280)" }}
       aria-labelledby="about-heading"
     >
+      {/* Section number */}
+      <div
+        className="absolute top-8 right-6 z-10 pointer-events-none"
+        aria-hidden="true"
+      >
+        <span
+          className="font-syne text-xs tracking-[0.4em] uppercase"
+          style={{ color: "oklch(0.58 0.26 340 / 0.5)" }}
+        >
+          02
+        </span>
+      </div>
+
       {/* Background decoration + animated orbs */}
       <div
         className="absolute inset-0 pointer-events-none overflow-hidden"
@@ -69,59 +123,43 @@ export default function AboutSection() {
               <em className="text-gradient-pink not-italic">Imagination</em>
             </h2>
 
-            <div
-              className="space-y-5 font-syne text-base leading-relaxed"
-              style={{ color: "oklch(0.96 0.02 60)" }}
-            >
-              <p>
-                It started in Class 9 — a curious student picking up C, drawn
-                not by assignments but by a hunger to solve problems that felt
-                impossible. What began as simple programs evolved into something
-                far more ambitious.
-              </p>
-              <p>
-                The obsession?{" "}
-                <strong style={{ color: "oklch(1 0 0)" }}>
-                  Physics simulation
-                </strong>
-                . Not the approximated, close-enough physics that most games
-                settle for — but 100% accurate, mathematically precise physical
-                reality rendered in real time. Wind that behaves like actual
-                wind. Gravity that mirrors the universe's laws exactly.
-              </p>
-              <p>
-                But Shahed isn't just a programmer. The same eye that spots
-                elegance in a well-optimized algorithm finds it in a perfectly
-                cut garment. Code and fashion are not opposites — both are
-                systems of precision and beauty.
-              </p>
-              <p>
-                The belief:{" "}
-                <strong style={{ color: "oklch(1 0 0)" }}>
-                  humans are capable of going beyond imagination
-                </strong>
-                , when given the right tools, the right mindset, and the courage
-                to build what doesn't yet exist.
-              </p>
+            {/* Staggered paragraphs */}
+            <div className="space-y-5 font-syne text-base leading-relaxed">
+              {paragraphItems.map((item, i) => (
+                <p
+                  key={item.key}
+                  className="transition-all duration-700"
+                  style={{
+                    color: "oklch(0.96 0.02 60)",
+                    opacity: isVisible ? 1 : 0,
+                    transform: isVisible ? "translateY(0)" : "translateY(20px)",
+                    transitionDelay: `${i * 150}ms`,
+                  }}
+                >
+                  {item.node}
+                </p>
+              ))}
             </div>
 
-            {/* Mission callout */}
-            <div
-              className="mt-10 p-6 relative"
-              style={{
-                borderLeft: "3px solid oklch(0.58 0.26 340)",
-                background: "oklch(0.58 0.26 340 / 0.06)",
-              }}
-            >
-              <p
-                className="font-syne text-xs tracking-[0.3em] uppercase mb-2"
-                style={{ color: "oklch(0.72 0.22 320)" }}
+            {/* Mission callout with animated border */}
+            <div className="animated-border mt-10">
+              <div
+                className="p-6 relative"
+                style={{
+                  borderLeft: "3px solid oklch(0.58 0.26 340)",
+                  background: "oklch(0.58 0.26 340 / 0.06)",
+                }}
               >
-                Mission
-              </p>
-              <p className="font-playfair text-2xl text-near-white italic">
-                "100% Accurate Physics in Gaming"
-              </p>
+                <p
+                  className="font-syne text-xs tracking-[0.3em] uppercase mb-2"
+                  style={{ color: "oklch(0.72 0.22 320)" }}
+                >
+                  Mission
+                </p>
+                <p className="font-playfair text-2xl text-near-white italic">
+                  "100% Accurate Physics in Gaming"
+                </p>
+              </div>
             </div>
 
             {/* Download CV */}
@@ -134,6 +172,7 @@ export default function AboutSection() {
                   "linear-gradient(135deg, oklch(0.58 0.26 340), oklch(0.42 0.16 345))",
               }}
               aria-label="Download Shahed's CV"
+              data-ocid="about.primary_button"
             >
               <Download className="w-4 h-4" />
               Download CV

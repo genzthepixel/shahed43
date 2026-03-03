@@ -38,6 +38,19 @@ export default function AwardsSection() {
       className="relative py-32 overflow-hidden"
       aria-labelledby="awards-heading"
     >
+      {/* Section number */}
+      <div
+        className="absolute top-8 right-6 z-10 pointer-events-none"
+        aria-hidden="true"
+      >
+        <span
+          className="font-syne text-xs tracking-[0.4em] uppercase"
+          style={{ color: "oklch(0.58 0.26 340 / 0.5)" }}
+        >
+          07
+        </span>
+      </div>
+
       {/* Background image with overlay */}
       <div className="absolute inset-0" aria-hidden="true">
         <img
@@ -129,6 +142,7 @@ export default function AwardsSection() {
               style={{
                 transitionDelay: `${i * 150}ms`,
               }}
+              data-ocid={`awards.item.${i + 1}`}
             >
               {/* Award frame */}
               <div
@@ -169,10 +183,10 @@ export default function AwardsSection() {
                   aria-hidden="true"
                 />
 
-                {/* Icon */}
+                {/* Icon with bounce/spin on hover */}
                 <div className="mb-6">
                   <award.icon
-                    className="w-8 h-8"
+                    className="w-8 h-8 award-icon-animate"
                     style={{ color: award.color }}
                     aria-hidden="true"
                   />

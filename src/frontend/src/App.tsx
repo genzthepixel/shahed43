@@ -7,24 +7,53 @@ import {
   createRoute,
   createRouter,
 } from "@tanstack/react-router";
-import { useState } from "react";
-import LoadingScreen from "./components/LoadingScreen";
+import { useEffect, useState } from "react";
+import PinkCursor from "./components/PinkCursor";
 import HomePage from "./pages/HomePage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
 
-function RootLayout() {
-  const [loaded, setLoaded] = useState(false);
+function ScrollProgressBar() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.body.scrollHeight - window.innerHeight;
+      const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      setProgress(Math.min(100, Math.max(0, pct)));
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: `${progress}%`,
+        height: "3px",
+        zIndex: 9998,
+        background:
+          "linear-gradient(90deg, oklch(0.42 0.16 345), oklch(0.58 0.26 340), oklch(0.72 0.22 320), oklch(0.82 0.18 300))",
+        boxShadow:
+          "0 0 8px oklch(0.58 0.26 340 / 0.8), 0 0 20px oklch(0.58 0.26 340 / 0.4)",
+        transition: "width 0.1s linear",
+        borderRadius: "0 2px 2px 0",
+      }}
+      aria-hidden="true"
+    />
+  );
+}
+
+function RootLayout() {
+  return (
     <>
-      {!loaded && <LoadingScreen onComplete={() => setLoaded(true)} />}
-      <div
-        style={{
-          opacity: loaded ? 1 : 0,
-          transition: "opacity 0.5s ease 0.1s",
-        }}
-      >
+      <PinkCursor />
+      <ScrollProgressBar />
+      <div>
         <Outlet />
         <Toaster position="bottom-right" />
       </div>
